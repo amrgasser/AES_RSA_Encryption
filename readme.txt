@@ -5,4 +5,5 @@ I used the java.security library in this assignment.
 
 This program is written in java.
 JDK used is java 8 -> 1.8u333
-All you need to do is run the class AESApplication and enter the fields as required in the console.
+All you need to do is run the class RSA_AES_Application and enter the fields as required in the console.
+

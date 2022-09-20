@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="AES_RSA_Encryption" />
         <module name="AES_Encryption" />
       </profile>
     </annotationProcessing>

@@ -1,13 +1,10 @@
 package com.aes;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.Base64;
 
 public class AES_Encryption {
@@ -17,16 +14,19 @@ public class AES_Encryption {
     private Cipher encryptionCipher;
     private static final String ENCRYPT_ALGO = "AES/GCM/NoPadding";
 
+    public AES_Encryption() {
+        KeyGenerator gen = null;
+        try {
+            gen = KeyGenerator.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        gen.init(128); //Specify key size bytes
+        key = gen.generateKey();
+    }
 
-    public SecretKey getAESKeyFromUser(char[] userInput, byte[] salt)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        KeySpec spec = new PBEKeySpec(userInput, salt, 65536, 256);
-        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
-        key= secret;
-        return secret;
-
+    public SecretKey getKey(){
+        return this.key;
     }
 
     public String encrypt(String data) throws Exception {
@@ -37,20 +37,25 @@ public class AES_Encryption {
         return encode(encryptedBytes);
 
     }
-    public String decrypt(String encryptedData) throws Exception {
+    public String decrypt(String encryptedData,byte[] inputKey) throws Exception {
         byte[] dataInBytes = decode(encryptedData);
         Cipher decryptionCipher = Cipher.getInstance(ENCRYPT_ALGO);
         GCMParameterSpec spec = new GCMParameterSpec(DATA_LENGTH, encryptionCipher.getIV());
-        decryptionCipher.init(Cipher.DECRYPT_MODE, key, spec);
+
+        //Return original key from decoded key
+        SecretKey originalKey = new SecretKeySpec(inputKey, "AES");
+
+        decryptionCipher.init(Cipher.DECRYPT_MODE, originalKey, spec);
+
         byte[] decryptedBytes = decryptionCipher.doFinal(dataInBytes);
         return new String(decryptedBytes);
     }
 
-    private String encode(byte[] data) {
+    protected String encode(byte[] data) {
         return Base64.getEncoder().encodeToString(data);
     }
 
-    private byte[] decode(String data) {
+    protected byte[] decode(String data) {
         return Base64.getDecoder().decode(data);
     }
 }
